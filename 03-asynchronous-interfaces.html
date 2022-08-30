@@ -1,0 +1,112 @@
+<main>
+  <div class='clock'></div>
+  <div class='timer'></div>
+  <div class='controls'>
+    <button class='increment'>+</button>
+    <button class='decrement'>-</button>
+  </div>
+  <div class='controls'>
+    <button class='play-pause'>⏯</button>
+    <button class='reset'>Reset</button>
+  </div>
+  <div class='controls'>
+    <button class='wait'>🛑 Wait</button>
+  </div>
+  <div>
+    <input placeholder='Take a note...'>
+    <button class='save-note-button'>➕</button>
+    <div class='notes'></div>
+  </div>
+</main>
+
+<script>
+  // Elements
+  const timer = document.querySelector('.timer');
+  const playPauseButton = document.querySelector('.play-pause');
+  const resetButton = document.querySelector('.reset');
+  const incrementButton = document.querySelector('.increment');
+  const decrementButton = document.querySelector('.decrement');
+  const waitButton = document.querySelector('.wait');
+  const clock = document.querySelector('.clock');
+  const noteInput = document.querySelector('input');
+  const saveNoteButton = document.querySelector('.save-note-button');
+  const notes = document.querySelector('.notes');
+
+
+  // State
+  let initialTimeInMs = 10000; // 10 seconds
+  let timeInMs = initialTimeInMs;
+  let interval = null;
+  let stepSize = 1000;
+  let updateRate = 100;
+
+  // Behaviors
+  function renderTime() { timer.textContent = `${(timeInMs / 1000).toFixed(1)}s`; }
+  function increment() { timeInMs += stepSize; renderTime(); }
+  function decrement() { timeInMs -= stepSize; renderTime(); }
+  function reset() {
+    clearInterval(interval);
+    interval = null;
+    timeInMs = initialTimeInMs;
+    renderTime();
+  }
+  function updateTimer() {
+    timeInMs -= updateRate;
+    if (interval && timeInMs <= 0) {
+      clearInterval(interval);
+      interval = null;
+      timeInMs = 0;
+    }
+    renderTime();
+  }
+  function playPause() {
+    console.log(interval);
+    if (interval) { stop() } else { start() };
+  }
+  function start() { interval = setInterval(updateTimer, updateRate) }
+  function stop() { clearInterval(interval); interval = null; }
+
+
+  function wait(timeInMs) {
+    const startTime = Date.now();
+    const endTime = Date.now() + timeInMs;
+    while (Date.now() < endTime) {
+      continue;
+    }
+  }
+
+  function wait10Sec() {
+    console.log('Gonna wait 10 seconds.');
+    wait(10000);
+    console.log('Waited 10 seconds.');
+  }
+
+  function saveNote() {
+    const newNote = document.createElement('p');
+    newNote.textContent = noteInput.value;
+    notes.appendChild(newNote);
+    noteInput.value = '';
+  }
+  // Event Listeners
+  playPauseButton.addEventListener('click', playPause);
+  resetButton.addEventListener('click', reset);
+  incrementButton.addEventListener('click', increment);
+  decrementButton.addEventListener('click', decrement);
+  waitButton.addEventListener('click', wait10Sec);
+  saveNoteButton.addEventListener('click', saveNote);
+  setInterval(() => { clock.textContent = new Date().toLocaleString() }, 100)
+
+  // Initial setup
+  reset();
+</script>
+
+
+<style>
+  :root, * { font-size: 32px;}
+  main { height: 100vh; position: relative; display: flex; flex-direction: column; align-items: center; justify-content: center; }
+  .timer { font-size: 25vw; }
+  .controls { display: flex; }
+  .controls > * { margin: 4px;}
+  .clock { position: absolute; font-family: monospace; top: 0; right: 0; }
+  p { margin: 0; padding: 0; }
+</style>
